@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "name": "blogs_platform_mongo_refresh_token_logout",
+  "builds": [
+    { "src": "src/index.ts", "use": "@vercel/node" }
+  ],
+  "routes": [
+    { "src": "/(.*)", "dest": "src/index.ts" }
+  ]
+}
