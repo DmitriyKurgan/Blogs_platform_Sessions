@@ -98,7 +98,6 @@ authRouter.post('/registration-email-resending',
     validateErrorsMiddleware, async (req: Request, res: Response) => {
         const userEmail = req.body.email;
         const confirmationCodeUpdatingResult = await authService.resendEmail(userEmail);
-        debugger
         if (!confirmationCodeUpdatingResult) return;
         res.sendStatus(CodeResponsesEnum.Not_content_204);
     });
