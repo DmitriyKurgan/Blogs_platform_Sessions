@@ -59,7 +59,7 @@ export type CommentType = {
     createdAt:string
 }
 
-export type SessionType = {
+export type RequestType = {
     IP:string
     URL:string
     date:Date

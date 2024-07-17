@@ -2,7 +2,7 @@ import {Request, Response, Router} from "express";
 import {usersService} from "../services/users-service";
 import {CodeResponsesEnum} from "../utils/utils";
 import {
-    authMiddleware,
+    authMiddleware, rateLimitMiddleware,
     validateAuthorization,
     validateAuthRequests,
     validateEmailResendingRequests,
@@ -24,7 +24,7 @@ import {usersQueryRepository} from "../repositories/query-repositories/users-que
 
 export const authRouter = Router({});
 
-authRouter.post('/login', validateAuthRequests, validateErrorsMiddleware, async (req: Request, res: Response) => {
+authRouter.post('/login', validateAuthRequests, rateLimitMiddleware, validateErrorsMiddleware, async (req: Request, res: Response) => {
     console.log('REQUEST: ', req)
     const user = await usersService.checkCredentials(req.body.loginOrEmail, req.body.password)
     if (!user) {

@@ -6,7 +6,7 @@ import {
     DeviceType,
     MongoRefreshTokenType,
     PostType,
-    SessionType,
+    RequestType,
     UserDBType
 } from "../utils/types";
 dotenv.config()
@@ -21,6 +21,7 @@ export const postsCollection =  client.db('learning').collection<PostType>('post
 export const usersCollection =  client.db('learning').collection<UserDBType>('users')
 export const commentsCollection =  client.db('learning').collection<CommentType>('comments')
 export const devicesCollection =  client.db('learning').collection<DeviceType>('devices')
+export const requestsCollection = client.db('learning').collection<RequestType>('requests');
 export const refreshTokensBlacklistCollection =  client.db('learning').collection<MongoRefreshTokenType>("refresh-tokens-blacklist");
 export async function runDB (){
     try {

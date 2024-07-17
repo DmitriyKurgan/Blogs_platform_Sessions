@@ -7,6 +7,7 @@ import {CodeResponsesEnum} from "../utils/utils";
 import {jwtService} from "../application/jwt-service";
 import {authQueryRepository} from "../repositories/query-repositories/auth-query-repository";
 import {tokensQueryRepository} from "../repositories/query-repositories/tokens-query-repository";
+import {requestsCollection} from "../repositories/db";
 const websiteUrlPattern =
     /^https:\/\/([a-zA-Z0-9_-]+\.)+[a-zA-Z0-9_-]+(\/[a-zA-Z0-9_-]+)*\/?$/;
 const loginPattern =
@@ -371,5 +372,32 @@ export const validationRefreshToken = async (
       return  next();
     } else {
       return   res.sendStatus(401);
+    }
+}
+export const rateLimitMiddleware = async (req: Request, res: Response, next: NextFunction) => {
+    const ip = req.ip ?? '';
+    const url = req.baseUrl || req.originalUrl;
+    const now = new Date();
+    const tenSecondsAgo = new Date(now.getTime() - 10 * 1000);
+
+    try {
+        // Считаем количество запросов от данного IP к данному URL за последние 10 секунд
+        const requestCount = await requestsCollection.countDocuments({
+            IP: ip,
+            URL: url,
+            date: { $gte: tenSecondsAgo }
+        });
+
+        if (requestCount >= 5) { // или любое другое количество запросов
+            return res.status(429).json({ message: 'Too many requests. Please try again later.' });
+        }
+
+        // Сохраняем текущий запрос в базе данных
+        await requestsCollection.insertOne({ IP: ip, URL: url, date: now });
+
+        next();
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal server error' });
     }
 };
