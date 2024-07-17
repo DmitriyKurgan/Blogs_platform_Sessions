@@ -13,6 +13,7 @@ export const app = express();
 app.use(express.json());
 app.use(express.urlencoded({extended:true}));
 app.use(cookieParser());
+app.set('trust proxy', true);
 const parserMiddleware = bodyParser({});
 
 app.use(parserMiddleware);
