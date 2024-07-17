@@ -7,9 +7,6 @@ import {emailService} from "./email-service";
 export const users = [] as OutputUserType[]
 
 export const authService:any = {
-    async deleteUser(userID:string): Promise<boolean>{
-       return await authRepository.deleteUser(userID);
-    },
     async confirmRegistration(confirmationCode:string):Promise<boolean>{
         const userAccount:OutputUserType | null = await authQueryRepository.findUserByEmailConfirmationCode(confirmationCode);
         if (!userAccount) return false;
