@@ -12,7 +12,7 @@ export const DevicesMapping = (devices: any) => {
             lastActiveDate: new Date(device.lastActiveDate * 1000).toISOString(),
             deviceId: device.deviceId,
         };
-}}
+})}
 
 export const devicesQueryRepository = {
     async getAllDevices(userId:string):Promise<any | { error: string }> {
