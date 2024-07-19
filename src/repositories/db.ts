@@ -10,8 +10,9 @@ import {
     UserDBType
 } from "../utils/types";
 dotenv.config()
-
-const mongoURI = process.env.MONGO_URL || "mongodb+srv://dimas:bdsPqKEj9AFZXz3n@blogsplatform.mxifx0s.mongodb.net/?retryWrites=true&w=majority&appName=BlogsPlatform"
+//jcm9I93KGt526fpO
+const mongoURI = process.env.MONGO_URL || "mongodb+srv://dimas:jcm9I93KGt526fpO@blogsplatform.mxifx0s.mongodb.net/?retryWrites=true&w=majority&appName=BlogsPlatform"
+console.log('mongoURI: ', mongoURI)
 if (!mongoURI){
     throw new Error('Database url is not defined!')
 }
