@@ -21,6 +21,8 @@ import {OutputUserType} from "../utils/types";
 import {usersRepository} from "../repositories/users-repository";
 import {tokensService} from "../services/tokens-service";
 import {usersQueryRepository} from "../repositories/query-repositories/users-query-repository";
+import {devices, devicesRepository} from "../repositories/devices-repository";
+import {devicesService} from "../services/devices-service";
 
 export const authRouter = Router({});
 
@@ -30,7 +32,11 @@ authRouter.post('/login', validateAuthRequests, rateLimitMiddleware, validateErr
     if (!user) {
         return res.sendStatus(CodeResponsesEnum.Unauthorized_401)
     }
+    const ip = req.ip!
     const token = await jwtService.createJWT(user);
+    const lastActiveDate = jwtService.getLastActiveDateFromToken(token.refreshToken);
+    const deviceTitle =  req.headers['user-agent'] || "browser not found"
+    const session = await devicesService.createDevice(user.id, ip, deviceTitle , lastActiveDate)
     res
         .cookie('refreshToken', token.refreshToken, {
             httpOnly: true,
