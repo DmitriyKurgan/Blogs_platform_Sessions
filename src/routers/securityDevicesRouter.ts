@@ -1,34 +1,57 @@
 import {Request, Response, Router} from "express";
-import {blogsService} from "../services/blogs-service";
-import {CodeResponsesEnum, getQueryValues} from "../utils/utils";
+import {CodeResponsesEnum} from "../utils/utils";
 import {
     validateAuthorization, validateDevicesRequests,
     validateErrorsMiddleware,
     validationBlogsFindByParamId
 } from "../middlewares/middlewares";
-import {devicesQueryRepository} from "../repositories/query-repositories/devices-query-repository";
-import {devicesRepository} from "../repositories/devices-repository";
-import {devicesService} from "../services/devices-service";
 
-;
+import {devicesService} from "../services/devices-service";
+import {jwtService} from "../application/jwt-service";
+import {devicesQueryRepository} from "../repositories/query-repositories/devices-query-repository";
 
 export const securityDevicesRouter = Router({});
 
-securityDevicesRouter.get('/', validateAuthorization, validateDevicesRequests, validateErrorsMiddleware, async (req:Request, res:Response)=>{
-    const devices = await devicesQueryRepository.getAllDevices();
-    if(!devices || !devices.items.length) {
-        return res.status(CodeResponsesEnum.Not_found_404).send([])
+securityDevicesRouter.get('/', validateAuthorization, validateErrorsMiddleware, async (req:Request, res:Response)=>{
+    const cookieRefreshToken = req.cookies.refreshToken;
+    const cookieRefreshTokenObj = await jwtService.verifyToken(
+        cookieRefreshToken
+    );
+
+    if (cookieRefreshTokenObj) {
+        const userId = cookieRefreshTokenObj!.userId.toString();
+        const foundDevices = await devicesQueryRepository.getAllDevices(
+            userId
+        );
+        res.json(foundDevices);
+    } else {
+        res.sendStatus(401);
     }
-    res.status(CodeResponsesEnum.OK_200).send(devices)
+
 })
 
-securityDevicesRouter.delete('/:id', validateAuthorization, validateDevicesRequests, validateErrorsMiddleware, async (req:Request, res:Response)=>{
-    const deviceID: string = req.deviceId!
-    const isDeleted:boolean = await devicesService.deleteDevice(deviceID);
-    if (!isDeleted || !deviceID){
-        return res.sendStatus(CodeResponsesEnum.Not_found_404);
+securityDevicesRouter.delete('/:id', validateAuthorization, validateErrorsMiddleware, async (req:Request, res:Response)=>{
+    const isDeleted = await devicesService.deleteDevice(
+        req.params.deviceId
+    );
+    if (isDeleted) {
+        res.sendStatus(204);
+    } else {
+        res.sendStatus(404);
     }
-    res.sendStatus(CodeResponsesEnum.Not_content_204);
 })
 
 
+securityDevicesRouter.delete('/', validateAuthorization, validateErrorsMiddleware, async (req:Request, res:Response)=>{
+    const cookieRefreshToken = req.cookies.refreshToken;
+    const cookieRefreshTokenObj = await jwtService.verifyToken(
+        cookieRefreshToken
+    );
+    if (cookieRefreshTokenObj) {
+        const currentDevice = cookieRefreshTokenObj.deviceId;
+        await devicesService.deleteAllOldDevices(currentDevice);
+        res.sendStatus(204);
+    } else {
+        res.sendStatus(401);
+    }
+})

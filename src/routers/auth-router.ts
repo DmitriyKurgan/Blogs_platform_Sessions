@@ -21,7 +21,6 @@ import {OutputUserType} from "../utils/types";
 import {usersRepository} from "../repositories/users-repository";
 import {tokensService} from "../services/tokens-service";
 import {usersQueryRepository} from "../repositories/query-repositories/users-query-repository";
-import {devices, devicesRepository} from "../repositories/devices-repository";
 import {devicesService} from "../services/devices-service";
 
 export const authRouter = Router({});
