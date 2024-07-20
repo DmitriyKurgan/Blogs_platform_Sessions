@@ -35,7 +35,8 @@ authRouter.post('/login', validateAuthRequests, rateLimitMiddleware, validateErr
     const token = await jwtService.createJWT(user);
     const lastActiveDate = jwtService.getLastActiveDateFromToken(token.refreshToken);
     const deviceTitle =  req.headers['user-agent'] || "browser not found"
-    const session = await devicesService.createDevice(user.id, ip, deviceTitle , lastActiveDate)
+    const deviceId =  (await jwtService.verifyToken(token)).deviceId as string
+    const session = await devicesService.createDevice(user.id, ip, deviceTitle , lastActiveDate, deviceId)
     res
         .cookie('refreshToken', token.refreshToken, {
             httpOnly: true,
