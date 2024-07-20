@@ -381,14 +381,13 @@ export const rateLimitMiddleware = async (req: Request, res: Response, next: Nex
     const tenSecondsAgo = new Date(now.getTime() - 10 * 1000);
 
     try {
-        // Считаем количество запросов от данного IP к данному URL за последние 10 секунд
         const requestCount = await requestsCollection.countDocuments({
             IP: ip,
             URL: url,
             date: { $gte: tenSecondsAgo }
         });
 
-        if (requestCount >= 5) { // или любое другое количество запросов
+        if (requestCount >= 5) {
             return res.status(429).json({ message: 'Too many requests. Please try again later.' });
         }
 

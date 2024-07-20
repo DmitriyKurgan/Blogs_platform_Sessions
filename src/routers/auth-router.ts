@@ -26,16 +26,15 @@ import {devicesService} from "../services/devices-service";
 export const authRouter = Router({});
 
 authRouter.post('/login', validateAuthRequests, rateLimitMiddleware, validateErrorsMiddleware, async (req: Request, res: Response) => {
-    console.log('REQUEST: ', req)
     const user = await usersService.checkCredentials(req.body.loginOrEmail, req.body.password)
     if (!user) {
         return res.sendStatus(CodeResponsesEnum.Unauthorized_401)
     }
     const ip = req.ip!
+    const deviceTitle =  req.headers['user-agent'] || "browser not found"
     const token = await jwtService.createJWT(user);
     const lastActiveDate = jwtService.getLastActiveDateFromToken(token.refreshToken);
-    const deviceTitle =  req.headers['user-agent'] || "browser not found"
-    const deviceId =  (await jwtService.verifyToken(token)).deviceId as string
+    const deviceId =  await jwtService.verifyToken(token.refreshToken).deviceId
     const session = await devicesService.createDevice(user.id, ip, deviceTitle , lastActiveDate, deviceId)
     res
         .cookie('refreshToken', token.refreshToken, {
