@@ -29,7 +29,7 @@ securityDevicesRouter.get('/', async (req:Request, res:Response)=>{
 
 })
 
-securityDevicesRouter.delete('/:deviceId',validationDevicesFindByParamId, authMiddleware, validateErrorsMiddleware, async (req:Request, res:Response)=>{
+securityDevicesRouter.delete('/:deviceId', validationDevicesFindByParamId, validateErrorsMiddleware, async (req:Request, res:Response)=>{
     debugger
     const isDeleted = await devicesService.deleteDevice(
         req.params.deviceId

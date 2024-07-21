@@ -1,11 +1,7 @@
-import {ObjectId, DeleteResult, UpdateResult} from "mongodb";
+import {ObjectId, UpdateResult} from "mongodb";
 import {usersCollection} from "./db";
 
 export const authRepository = {
-   async deleteUser(userID:string): Promise<boolean>{
-        const result: DeleteResult = await usersCollection.deleteOne({_id:new ObjectId(userID)});
-        return result.deletedCount === 1
-    },
     async updateConfirmation(userID:string):Promise<boolean>{
         const result: UpdateResult = await usersCollection.updateOne({_id:new ObjectId(userID)},
             {$set:{'emailConfirmation.isConfirmed':true}});
