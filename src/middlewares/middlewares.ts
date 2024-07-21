@@ -346,7 +346,6 @@ export const validationPostsCreation = body("blogId").custom(async (value) => {
 
 export const validationDevicesFindByParamId = param("deviceId").custom(
     async (value) => {
-        debugger
         const result = await devicesService.findDeviceById(value);
         if (!result) {
             throw new Error("ID not found");
