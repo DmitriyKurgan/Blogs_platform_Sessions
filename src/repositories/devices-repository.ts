@@ -1,5 +1,5 @@
 import {devicesCollection} from "../repositories/db";
-import {ObjectId, DeleteResult} from "mongodb";
+import {ObjectId, DeleteResult, WithId} from "mongodb";
 import {DeviceType, } from "../utils/types";
 import {ExtendedSessionType} from "../services/devices-service";
 export const devices = [] as DeviceType[]
@@ -16,5 +16,9 @@ export const devicesRepository = {
     async deleteAllOldDevices(currentDeviceID:string){
         const result: DeleteResult = await devicesCollection.deleteMany({deviceId: {$ne: currentDeviceID}});
         return result.deletedCount === 1;
+    },
+    async findDeviceById(deviceID:string){
+        const result: WithId<DeviceType> | null = await devicesCollection.findOne({_id: new ObjectId(deviceID)});
+        return result
     }
 }

@@ -8,6 +8,7 @@ import {jwtService} from "../application/jwt-service";
 import {authQueryRepository} from "../repositories/query-repositories/auth-query-repository";
 import {tokensQueryRepository} from "../repositories/query-repositories/tokens-query-repository";
 import {requestsCollection} from "../repositories/db";
+import {devicesService} from "../services/devices-service";
 const websiteUrlPattern =
     /^https:\/\/([a-zA-Z0-9_-]+\.)+[a-zA-Z0-9_-]+(\/[a-zA-Z0-9_-]+)*\/?$/;
 const loginPattern =
@@ -342,6 +343,16 @@ export const validationPostsCreation = body("blogId").custom(async (value) => {
     }
     return true;
 });
+
+export const validationDevicesFindByParamId = param("deviceId").custom(
+    async (value) => {
+        const result = await devicesService.findDeviceById(value);
+        if (!result) {
+            throw new Error("ID not found");
+        }
+        return true;
+    }
+);
 
 export const validationUserUnique = (field: string) =>
     body(field).custom(async (value) => {

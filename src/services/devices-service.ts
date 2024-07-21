@@ -23,4 +23,7 @@ export const devicesService: any = {
     async deleteAllOldDevices(currentDeviceId:string):Promise<any | { error: string }> {
         await devicesRepository.deleteAllOldDevices(currentDeviceId);
     },
+    async findDeviceById(currentDeviceId:string):Promise<any | { error: string }> {
+        await devicesRepository.findDeviceById(currentDeviceId);
+    },
 }
