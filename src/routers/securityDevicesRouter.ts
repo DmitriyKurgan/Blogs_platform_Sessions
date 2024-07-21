@@ -1,7 +1,7 @@
 import {Request, Response, Router} from "express";
 import {
     authMiddleware,
-    validateErrorsMiddleware, validationDevicesFindByParamId,
+    validateErrorsMiddleware, validationDeviceOwner, validationDevicesFindByParamId,
 } from "../middlewares/middlewares";
 
 import {devicesService} from "../services/devices-service";
@@ -29,7 +29,7 @@ securityDevicesRouter.get('/', async (req:Request, res:Response)=>{
 
 })
 
-securityDevicesRouter.delete('/:deviceId', validationDevicesFindByParamId, validateErrorsMiddleware, async (req:Request, res:Response)=>{
+securityDevicesRouter.delete('/:deviceId', validationDevicesFindByParamId, validateErrorsMiddleware, validationDeviceOwner, async (req:Request, res:Response)=>{
     debugger
     const isDeleted = await devicesService.deleteDevice(
         req.params.deviceId
