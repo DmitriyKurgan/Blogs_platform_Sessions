@@ -9,10 +9,10 @@ export const jwtService:any = {
     async createJWT(user:OutputUserType):Promise<TokenType>{
         const deviceId = randomUUID();
         const accessToken: AccessToken = {
-            accessToken: jwt.sign({ userId: user.id, deviceId }, settings.JWT_SECRET, { expiresIn: '10s' })
+            accessToken: jwt.sign({ userId: user.id, deviceId }, settings.JWT_SECRET, { expiresIn: '10h' })
         };
 
-        const refreshToken = jwt.sign({ userId: user.id, deviceId }, settings.JWT_SECRET, { expiresIn: '20s' })
+        const refreshToken = jwt.sign({ userId: user.id, deviceId }, settings.JWT_SECRET, { expiresIn: '20h' })
 
         return { accessToken, refreshToken };
     },
@@ -40,6 +40,11 @@ export const jwtService:any = {
         const payload: any = jwt.decode(refreshToken)
         console.log('payload: ', payload)
         return new Date(payload.iat * 1000).toISOString()
+    },
+    getDeviceIdFromToken(refreshToken: string): string {
+        console.log('refreshToken: ', refreshToken)
+        const payload: any = jwt.decode(refreshToken)
+        console.log('payload: ', payload)
+        return payload.deviceId
     }
-
 }

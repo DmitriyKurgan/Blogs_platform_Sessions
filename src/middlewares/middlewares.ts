@@ -367,7 +367,7 @@ export const validationRefreshToken = async (
     const findTokenInBlackList = await tokensQueryRepository.findBlackListedToken(
         refreshToken
     );
-    console.log('findTokenInBlackList_MIDDLEWARE: ', findTokenInBlackList)
+
     if (!findTokenInBlackList) {
       return  next();
     } else {

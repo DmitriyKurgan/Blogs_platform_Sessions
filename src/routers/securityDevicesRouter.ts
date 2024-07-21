@@ -1,10 +1,7 @@
 import {Request, Response, Router} from "express";
-import {CodeResponsesEnum} from "../utils/utils";
 import {
     authMiddleware,
-    validateAuthorization, validateDevicesRequests,
     validateErrorsMiddleware,
-    validationBlogsFindByParamId
 } from "../middlewares/middlewares";
 
 import {devicesService} from "../services/devices-service";
@@ -13,7 +10,8 @@ import {devicesQueryRepository} from "../repositories/query-repositories/devices
 
 export const securityDevicesRouter = Router({});
 
-securityDevicesRouter.get('/', authMiddleware, validateErrorsMiddleware, async (req:Request, res:Response)=>{
+securityDevicesRouter.get('/', async (req:Request, res:Response)=>{
+
     const cookieRefreshToken = req.cookies.refreshToken;
     const cookieRefreshTokenObj = await jwtService.verifyToken(
         cookieRefreshToken
