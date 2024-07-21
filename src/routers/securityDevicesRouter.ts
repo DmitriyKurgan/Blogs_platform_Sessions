@@ -1,6 +1,7 @@
 import {Request, Response, Router} from "express";
 import {CodeResponsesEnum} from "../utils/utils";
 import {
+    authMiddleware,
     validateAuthorization, validateDevicesRequests,
     validateErrorsMiddleware,
     validationBlogsFindByParamId
@@ -12,7 +13,7 @@ import {devicesQueryRepository} from "../repositories/query-repositories/devices
 
 export const securityDevicesRouter = Router({});
 
-securityDevicesRouter.get('/', validateAuthorization, validateErrorsMiddleware, async (req:Request, res:Response)=>{
+securityDevicesRouter.get('/', authMiddleware, validateErrorsMiddleware, async (req:Request, res:Response)=>{
     const cookieRefreshToken = req.cookies.refreshToken;
     const cookieRefreshTokenObj = await jwtService.verifyToken(
         cookieRefreshToken
@@ -30,7 +31,7 @@ securityDevicesRouter.get('/', validateAuthorization, validateErrorsMiddleware, 
 
 })
 
-securityDevicesRouter.delete('/:id', validateAuthorization, validateErrorsMiddleware, async (req:Request, res:Response)=>{
+securityDevicesRouter.delete('/:id', authMiddleware, validateErrorsMiddleware, async (req:Request, res:Response)=>{
     const isDeleted = await devicesService.deleteDevice(
         req.params.deviceId
     );
@@ -42,7 +43,7 @@ securityDevicesRouter.delete('/:id', validateAuthorization, validateErrorsMiddle
 })
 
 
-securityDevicesRouter.delete('/', validateAuthorization, validateErrorsMiddleware, async (req:Request, res:Response)=>{
+securityDevicesRouter.delete('/', authMiddleware, validateErrorsMiddleware, async (req:Request, res:Response)=>{
     const cookieRefreshToken = req.cookies.refreshToken;
     const cookieRefreshTokenObj = await jwtService.verifyToken(
         cookieRefreshToken
