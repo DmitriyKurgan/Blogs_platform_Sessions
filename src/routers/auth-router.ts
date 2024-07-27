@@ -138,6 +138,8 @@ authRouter.post('/logout', validationRefreshToken, async (req: Request, res: Res
     );
     await tokensService.createNewBlacklistedRefreshToken(cookieRefreshToken);
     if (cookieRefreshTokenObj) {
+        const cookieDeviceId = cookieRefreshTokenObj.deviceId;
+        await devicesService.deleteDevice(cookieDeviceId);
         res.sendStatus(204);
     } else {
         res.sendStatus(401);
