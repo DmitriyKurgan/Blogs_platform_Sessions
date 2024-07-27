@@ -68,7 +68,7 @@ export type RequestType = {
 export type DeviceType = {
     ip: string
     title: string
-    lastActiveDate: string
+    lastActiveDate: string | number
     deviceId: string
 }
 

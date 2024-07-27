@@ -17,6 +17,13 @@ export const devicesService: any = {
 
         return await devicesRepository.createDevice(newSession);
     },
+    async updateDevice(
+        ip: string,
+        userId: string,
+        issuedAt: number
+    ): Promise<boolean> {
+        return this.devicesRepository.updateDevice(ip, userId, issuedAt);
+    },
     async deleteDevice(deviceID: string): Promise<boolean> {
         return await devicesRepository.deleteDevice(deviceID);
     },

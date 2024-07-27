@@ -56,6 +56,13 @@ authRouter.post('/refresh-token', validationRefreshToken, async (req: Request, r
         const user = await usersQueryRepository.findUserByID(userId);
         const newAccessToken = (await jwtService.createJWT(user)).accessToken;
         const newRefreshToken = (await jwtService.createJWT(user)).refreshToken;
+        const newRefreshTokenObj = await jwtService.verifyToken(
+            newRefreshToken
+        );
+        const newIssuedAt = newRefreshTokenObj!.iat;
+        const ip = req.ip!;
+        await devicesService.updateDevice(ip, userId, newIssuedAt);
+
         res
             .cookie("refreshToken", newRefreshToken, {
                 httpOnly: true,

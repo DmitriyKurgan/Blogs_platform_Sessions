@@ -9,6 +9,22 @@ export const devicesRepository = {
         const result = await devicesCollection.insertOne(session);
         return result;
     },
+    async updateDevice(
+        ip: string,
+        userId: string,
+        issuedAt: number
+    ){
+        const result = await devicesCollection.updateOne(
+            { userId },
+            {
+                $set: {
+                    lastActiveDate: issuedAt,
+                    ip,
+                },
+            }
+        );
+        return result.matchedCount === 1;
+    },
    async deleteDevice(deviceID:string){
        const result: DeleteResult = await devicesCollection.deleteOne({deviceId: deviceID});
        return result.deletedCount === 1;
