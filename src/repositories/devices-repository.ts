@@ -11,11 +11,11 @@ export const devicesRepository = {
     },
     async updateDevice(
         ip: string,
-        userId: string,
+        deviceId: string,
         issuedAt: number
     ){
         const result = await devicesCollection.updateOne(
-            { userId },
+            { deviceId },
             {
                 $set: {
                     lastActiveDate: issuedAt,

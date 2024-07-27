@@ -19,10 +19,10 @@ export const devicesService: any = {
     },
     async updateDevice(
         ip: string,
-        userId: string,
+        deviceId: string,
         issuedAt: number
     ): Promise<boolean> {
-        return this.devicesRepository.updateDevice(ip, userId, issuedAt);
+        return this.devicesRepository.updateDevice(ip, deviceId, issuedAt);
     },
     async deleteDevice(deviceID: string): Promise<boolean> {
         return await devicesRepository.deleteDevice(deviceID);

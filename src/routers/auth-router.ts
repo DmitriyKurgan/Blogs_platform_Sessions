@@ -60,8 +60,9 @@ authRouter.post('/refresh-token', validationRefreshToken, async (req: Request, r
             newRefreshToken
         );
         const newIssuedAt = newRefreshTokenObj!.iat;
+        const deviceId = newRefreshTokenObj!.deviceId;
         const ip = req.ip!;
-        await devicesService.updateDevice(ip, userId, newIssuedAt);
+        await devicesService.updateDevice(ip, deviceId, newIssuedAt);
 
         res
             .cookie("refreshToken", newRefreshToken, {

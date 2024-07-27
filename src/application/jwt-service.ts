@@ -2,12 +2,12 @@ import {AccessToken, OutputUserType, TokenType} from "../utils/types";
 import {ObjectId} from "mongodb";
 import jwt from 'jsonwebtoken';
 import {settings} from "../settings";
-import {randomUUID} from "crypto";
+import {randomUUID, UUID} from "crypto";
 
 export const jwtService:any = {
 
     async createJWT(user:OutputUserType):Promise<TokenType>{
-        const deviceId = randomUUID();
+        const deviceId:UUID = randomUUID();
         const accessToken: AccessToken = {
             accessToken: jwt.sign({ userId: user.id, deviceId }, settings.JWT_SECRET, { expiresIn: '10h' })
         };
