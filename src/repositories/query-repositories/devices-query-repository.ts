@@ -8,7 +8,7 @@ export const DevicesMapping = (devices: WithId<DeviceType>[]) => {
             ip: device.ip,
             title: device.title,
             lastActiveDate: new Date(device.lastActiveDate).toISOString(),
-           // deviceId: device.deviceId,
+            deviceId: device.deviceId,
         };
 })}
 
