@@ -34,7 +34,6 @@ export const devicesRepository = {
         return result.deletedCount === 1;
     },
     async findDeviceById(deviceID:string){
-        debugger
         const result: WithId<DeviceType> | null = await devicesCollection.findOne({deviceId:deviceID});
         return result
     }
