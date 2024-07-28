@@ -48,7 +48,7 @@ authRouter.post('/login', validateAuthRequests, rateLimitMiddleware, validateErr
 
 });
 
-authRouter.post('/refresh-token', validationRefreshToken, async (req: Request, res: Response) => {
+authRouter.post('/refresh-token', validationRefreshToken, rateLimitMiddleware, async (req: Request, res: Response) => {
     const refreshToken = req.cookies.refreshToken;
     const userId = await jwtService.getUserIdByToken(refreshToken);
     const cookieRefreshTokenObj = await jwtService.verifyToken(refreshToken);
@@ -82,6 +82,7 @@ authRouter.post('/registration',
     validateUsersRequests,
     validationUserUnique("email"),
     validationUserUnique("login"),
+    rateLimitMiddleware,
     validateErrorsMiddleware,
     async (req: Request, res: Response) => {
         const userAccount: OutputUserType | null = await usersService.createUser(req.body.login, req.body.email, req.body.password);
@@ -97,6 +98,7 @@ authRouter.post('/registration',
 authRouter.post('/registration-confirmation',
     validateRegistrationConfirmationRequests,
     validationEmailConfirm,
+    rateLimitMiddleware,
     validateErrorsMiddleware,
     async (req: Request, res: Response) => {
         const confirmationCode = req.body.code;
@@ -109,6 +111,7 @@ authRouter.post('/registration-confirmation',
 authRouter.post('/registration-email-resending',
     validateEmailResendingRequests,
     validationEmailResend,
+    rateLimitMiddleware,
     validateErrorsMiddleware, async (req: Request, res: Response) => {
         const userEmail = req.body.email;
         const confirmationCodeUpdatingResult = await authService.resendEmail(userEmail);
@@ -116,7 +119,7 @@ authRouter.post('/registration-email-resending',
         res.sendStatus(CodeResponsesEnum.Not_content_204);
     });
 
-authRouter.get('/me', authMiddleware, async (req: Request, res: Response) => {
+authRouter.get('/me', authMiddleware, rateLimitMiddleware, async (req: Request, res: Response) => {
     const myID = req.userId
     if (!myID) {
         return res.sendStatus(CodeResponsesEnum.Unauthorized_401);
@@ -132,7 +135,7 @@ authRouter.get('/me', authMiddleware, async (req: Request, res: Response) => {
     })
 });
 
-authRouter.post('/logout', validationRefreshToken, async (req: Request, res: Response) => {
+authRouter.post('/logout', validationRefreshToken, rateLimitMiddleware, async (req: Request, res: Response) => {
     const cookieRefreshToken = req.cookies.refreshToken;
     const cookieRefreshTokenObj = await jwtService.verifyToken(
         cookieRefreshToken
@@ -147,7 +150,7 @@ authRouter.post('/logout', validationRefreshToken, async (req: Request, res: Res
     }
 });
 
-authRouter.delete("/tokens",validateAuthorization, async (req: Request, res: Response) => {
+authRouter.delete("/tokens",validateAuthorization, rateLimitMiddleware, async (req: Request, res: Response) => {
     const isDeleted = await tokensService.deleteAll();
     if (isDeleted) {
         res.sendStatus(204);
