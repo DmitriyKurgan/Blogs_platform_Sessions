@@ -41,7 +41,7 @@ securityDevicesRouter.delete('/:deviceId', validationDevicesFindByParamId, valid
 })
 
 
-securityDevicesRouter.delete('/', authMiddleware, validateErrorsMiddleware, async (req:Request, res:Response)=>{
+securityDevicesRouter.delete('/', validateErrorsMiddleware, async (req:Request, res:Response)=>{
     const cookieRefreshToken = req.cookies.refreshToken;
     const cookieRefreshTokenObj = await jwtService.verifyToken(
         cookieRefreshToken
