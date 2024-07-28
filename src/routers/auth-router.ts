@@ -51,6 +51,8 @@ authRouter.post('/login', validateAuthRequests, rateLimitMiddleware, validateErr
 authRouter.post('/refresh-token', validationRefreshToken, async (req: Request, res: Response) => {
     const refreshToken = req.cookies.refreshToken;
     const userId = await jwtService.getUserIdByToken(refreshToken);
+    const cookieRefreshTokenObj = await jwtService.verifyToken(refreshToken);
+    const deviceId = cookieRefreshTokenObj!.deviceId;
     if (userId) {
         await tokensService.createNewBlacklistedRefreshToken(refreshToken);
         const user = await usersQueryRepository.findUserByID(userId);
@@ -60,7 +62,6 @@ authRouter.post('/refresh-token', validationRefreshToken, async (req: Request, r
             newRefreshToken
         );
         const newIssuedAt = newRefreshTokenObj!.iat;
-        const deviceId = newRefreshTokenObj!.deviceId;
         const ip = req.ip!;
         await devicesService.updateDevice(ip, deviceId, newIssuedAt);
 
