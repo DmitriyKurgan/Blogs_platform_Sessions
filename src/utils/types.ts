@@ -72,6 +72,15 @@ export type DeviceType = {
     deviceId: string
 }
 
+export type RateLimitType = {
+    _id: ObjectId
+    ip: string
+    endpoint: string
+    firstAttempt: number
+    lastAttempt: number
+    attemptsCount: number
+}
+
 export type OutputCommentType = CommentType & {id:string}
 
 export type BlogsServiceType = {

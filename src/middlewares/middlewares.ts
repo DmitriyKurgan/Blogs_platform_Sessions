@@ -9,6 +9,7 @@ import {authQueryRepository} from "../repositories/query-repositories/auth-query
 import {tokensQueryRepository} from "../repositories/query-repositories/tokens-query-repository";
 import {requestsCollection} from "../repositories/db";
 import {devicesService} from "../services/devices-service";
+import {rateLimitsService} from "../services/raze-limiter-service";
 const websiteUrlPattern =
     /^https:\/\/([a-zA-Z0-9_-]+\.)+[a-zA-Z0-9_-]+(\/[a-zA-Z0-9_-]+)*\/?$/;
 const loginPattern =
@@ -446,28 +447,38 @@ export const validationRefreshToken = async (
 
 }
 export const rateLimitMiddleware = async (req: Request, res: Response, next: NextFunction) => {
-    const ip = req.ip ?? '';
-    const url = req.baseUrl || req.originalUrl;
-    const now = new Date();
-    const tenSecondsAgo = new Date(now.getTime() - 10 * 1000);
+    const ip = req.ip!;
+    const endpoint = req.originalUrl;
 
-    try {
-        const requestCount = await requestsCollection.countDocuments({
-            IP: ip,
-            URL: url,
-            date: { $gte: tenSecondsAgo }
-        });
+    const foundRateLimit = await rateLimitsService.findRateLimit(ip, endpoint);
 
-        if (requestCount >= 5) {
-            return res.status(429).json({ message: 'Too many requests. Please try again later.' });
+    if (!foundRateLimit) {
+        await rateLimitsService.createRateLimit(ip, endpoint);
+    } else {
+        const currentDate = Date.now();
+        const firstAttemptDate = foundRateLimit.firstAttempt;
+        const lastAttemptDate = foundRateLimit.lastAttempt;
+        const diffBetweenNowAndFirst = currentDate - firstAttemptDate;
+        const diffBetweenNowAndLast = currentDate - lastAttemptDate;
+
+        if (foundRateLimit.attemptsCount >= 5) {
+            // Timeout 5 sec
+            if (diffBetweenNowAndLast < 5000) {
+                res.sendStatus(429);
+                return;
+            } else {
+                await rateLimitsService.deleteRateLimit(ip, endpoint);
+            }
         }
 
-        // Сохраняем текущий запрос в базе данных
-        await requestsCollection.insertOne({ IP: ip, URL: url, date: now });
-
-        next();
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Internal server error' });
+        if (diffBetweenNowAndFirst < 10000) {
+            await rateLimitsService.updateCounter(ip, endpoint, currentDate);
+        } else {
+            await rateLimitsService.deleteRateLimit(ip, endpoint);
+            await rateLimitsService.createRateLimit(ip, endpoint);
+        }
     }
+
+    next();
+
 };

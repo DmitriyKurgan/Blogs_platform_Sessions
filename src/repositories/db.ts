@@ -5,7 +5,7 @@ import {
     CommentType,
     DeviceType,
     MongoRefreshTokenType,
-    PostType,
+    PostType, RateLimitType,
     RequestType,
     UserDBType
 } from "../utils/types";
@@ -23,6 +23,7 @@ export const usersCollection =  client.db('learning').collection<UserDBType>('us
 export const commentsCollection =  client.db('learning').collection<CommentType>('comments')
 export const devicesCollection =  client.db('learning').collection<DeviceType>('devices')
 export const requestsCollection = client.db('learning').collection<RequestType>('requests');
+export const rateLimitsCollection = client.db('learning').collection<RateLimitType>('rate-limits');
 export const refreshTokensBlacklistCollection =  client.db('learning').collection<MongoRefreshTokenType>("refresh-tokens-blacklist");
 export async function runDB (){
     try {
