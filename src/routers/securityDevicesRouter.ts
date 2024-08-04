@@ -44,12 +44,9 @@ securityDevicesRouter.delete('/:deviceId', validationDevicesFindByParamId, valid
 
 securityDevicesRouter.delete('/', validateErrorsMiddleware, async (req:Request, res:Response)=>{
     const cookieRefreshToken = req.cookies.refreshToken;
-    const cookieRefreshTokenObj = await jwtService.verifyToken(
-        cookieRefreshToken
-    );
-    if (cookieRefreshTokenObj) {
-        const currentDevice = cookieRefreshTokenObj.deviceId;
-        await devicesService.deleteAllOldDevices(currentDevice);
+    const deviceId =  jwtService.getDeviceIdFromToken(cookieRefreshToken)
+    if (deviceId) {
+        await devicesService.deleteAllOldDevices(deviceId);
         res.sendStatus(204);
     } else {
         res.sendStatus(401);

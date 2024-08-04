@@ -13,7 +13,7 @@ export const jwtService:any = {
         };
 
         const refreshToken = jwt.sign({ userId: user.id, deviceId }, settings.JWT_SECRET, { expiresIn: '20h' })
-debugger
+        console.log('refreshToken: ', refreshToken)
         return { accessToken, refreshToken };
     },
     async getUserIdByToken(token:string):Promise<ObjectId | null>{
@@ -26,13 +26,10 @@ debugger
     },
     async verifyToken(token: string) {
         try {
-            return jwt.verify(token, settings.JWT_SECRET) as {
-                userId: number;
-                deviceId: string;
-                iat: number;
-                exp: number;
-            };
+            debugger
+            return jwt.verify(token, settings.JWT_SECRET)
         } catch (error) {
+            console.error(error)
             return null;
         }
     },
