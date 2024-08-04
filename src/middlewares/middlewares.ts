@@ -283,9 +283,7 @@ export const authMiddleware = async (req:Request, res:Response, next:NextFunctio
        return res.sendStatus(CodeResponsesEnum.Unauthorized_401);
     }
     const token = req.cookies.refreshToken;
-    if (!token){
-        return res.sendStatus(CodeResponsesEnum.Unauthorized_401);
-    }
+
     const userId = await jwtService.getUserIdByToken(token);
     if (!userId){
       return  res.sendStatus(CodeResponsesEnum.Unauthorized_401);
@@ -461,7 +459,7 @@ export const rateLimitMiddleware = async (req: Request, res: Response, next: Nex
         const diffBetweenNowAndFirst = currentDate - firstAttemptDate;
         const diffBetweenNowAndLast = currentDate - lastAttemptDate;
 
-        if (foundRateLimit.attemptsCount >= 5) {
+        if (foundRateLimit.attemptsCount > 5) {
             // Timeout 5 sec
             if (diffBetweenNowAndLast < 5000) {
                 res.sendStatus(429);
