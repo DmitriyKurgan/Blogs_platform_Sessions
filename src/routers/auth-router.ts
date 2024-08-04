@@ -73,7 +73,6 @@ authRouter.post('/refresh-token', validationRefreshToken, async (req: Request, r
             .status(200)
             .json(newAccessToken);
     } else {
-        console.log('here')
         res.sendStatus(401);
     }
 });
