@@ -36,13 +36,13 @@ export const jwtService:any = {
     },
     getLastActiveDateFromToken(refreshToken: string): string {
         console.log('refreshToken: ', refreshToken)
-        const payload: any = jwt.decode(refreshToken)
+        const payload: any = jwt.verify(refreshToken, settings.JWT_SECRET)
         console.log('payload: ', payload)
         return new Date(payload.iat * 1000).toISOString()
     },
     getDeviceIdFromToken(refreshToken: string): string {
         console.log('refreshToken: ', refreshToken)
-        const payload: any = jwt.decode(refreshToken)
+        const payload: any = jwt.verify(refreshToken, settings.JWT_SECRET)
         console.log('payload: ', payload)
         return payload.deviceId
     }
