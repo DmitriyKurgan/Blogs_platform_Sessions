@@ -42,7 +42,7 @@ securityDevicesRouter.delete('/:deviceId', validationDevicesFindByParamId, valid
 })
 
 
-securityDevicesRouter.delete('/', validateErrorsMiddleware, async (req:Request, res:Response)=>{
+securityDevicesRouter.delete('/', authMiddleware, validateErrorsMiddleware, async (req:Request, res:Response)=>{
     const cookieRefreshToken = req.cookies.refreshToken;
     const deviceId =  jwtService.getDeviceIdFromToken(cookieRefreshToken)
     if (deviceId) {
