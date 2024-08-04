@@ -26,10 +26,8 @@ export const jwtService:any = {
     },
     async verifyToken(token: string) {
         try {
-            debugger
             return jwt.verify(token, settings.JWT_SECRET)
         } catch (error) {
-            console.error(error)
             return null;
         }
     },
