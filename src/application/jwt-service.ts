@@ -13,7 +13,7 @@ export const jwtService:any = {
         };
 
         const refreshToken = jwt.sign({ userId: user.id, deviceId }, settings.JWT_SECRET, { expiresIn: '20h' })
-
+debugger
         return { accessToken, refreshToken };
     },
     async getUserIdByToken(token:string):Promise<ObjectId | null>{
