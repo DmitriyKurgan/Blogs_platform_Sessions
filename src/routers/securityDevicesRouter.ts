@@ -14,12 +14,9 @@ export const securityDevicesRouter = Router({});
 securityDevicesRouter.get('/', async (req:Request, res:Response)=>{
 
     const cookieRefreshToken = req.cookies.refreshToken;
-    const cookieRefreshTokenObj = await jwtService.verifyToken(
-        cookieRefreshToken
-    );
-
-    if (cookieRefreshTokenObj) {
-        const userId = cookieRefreshTokenObj!.userId.toString();
+    const userId = await jwtService.getUserIdByToken(cookieRefreshToken);
+    console.log('userId: ', userId)
+    if (userId) {
         const foundDevices = await devicesQueryRepository.getAllDevices(
             userId
         );

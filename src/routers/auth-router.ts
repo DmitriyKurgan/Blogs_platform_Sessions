@@ -38,8 +38,8 @@ authRouter.post('/login', validateAuthRequests, rateLimitMiddleware, validateErr
     const session = await devicesService.createDevice(user.id, ip, deviceTitle , lastActiveDate, deviceId)
     res
         .cookie('refreshToken', token.refreshToken, {
-            httpOnly: true,
-            secure: true,
+            // httpOnly: true,
+            // secure: true,
             maxAge: 20 * 1000,
             sameSite: 'strict'
         })
