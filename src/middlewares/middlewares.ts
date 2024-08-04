@@ -459,7 +459,7 @@ export const rateLimitMiddleware = async (req: Request, res: Response, next: Nex
         const diffBetweenNowAndFirst = currentDate - firstAttemptDate;
         const diffBetweenNowAndLast = currentDate - lastAttemptDate;
 
-        if (foundRateLimit.attemptsCount > 5) {
+        if (foundRateLimit.attemptsCount >= 5) {
             // Timeout 5 sec
             if (diffBetweenNowAndLast < 5000) {
                 res.sendStatus(429);
