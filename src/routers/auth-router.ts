@@ -40,8 +40,8 @@ authRouter.post('/login', validateAuthRequests, rateLimitMiddleware, validateErr
         .cookie('refreshToken', token.refreshToken, {
             httpOnly: true,
             secure: true,
-            maxAge: 20 * 1000,
-            sameSite: 'strict'
+            // maxAge: 20 * 1000,
+            // sameSite: 'strict'
         })
         .status(CodeResponsesEnum.OK_200)
         .send(token.accessToken);
