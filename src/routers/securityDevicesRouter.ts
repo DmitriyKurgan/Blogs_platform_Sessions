@@ -7,6 +7,7 @@ import {
 import {devicesService} from "../services/devices-service";
 import {jwtService} from "../application/jwt-service";
 import {devicesQueryRepository} from "../repositories/query-repositories/devices-query-repository";
+import {CodeResponsesEnum} from "../utils/utils";
 
 export const securityDevicesRouter = Router({});
 
@@ -43,6 +44,9 @@ securityDevicesRouter.delete('/:deviceId', validationDevicesFindByParamId, valid
 
 
 securityDevicesRouter.delete('/', authMiddleware, validateErrorsMiddleware, async (req:Request, res:Response)=>{
+    if (!req.cookies.refreshToken){
+        return res.sendStatus(CodeResponsesEnum.Unauthorized_401);
+    }
     const cookieRefreshToken = req.cookies.refreshToken;
     const deviceId =  jwtService.getDeviceIdFromToken(cookieRefreshToken)
     if (deviceId) {

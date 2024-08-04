@@ -17,10 +17,12 @@ export const jwtService:any = {
         return { accessToken, refreshToken };
     },
     async getUserIdByToken(token:string):Promise<ObjectId | null>{
+        console.log('getToken: , ' , token)
         try {
            const result:any = jwt.verify(token, settings.JWT_SECRET);
            return result.userId;
         } catch (e:unknown) {
+            console.log(e)
             return null
         }
     },
@@ -28,6 +30,7 @@ export const jwtService:any = {
         try {
             return jwt.verify(token, settings.JWT_SECRET)
         } catch (error) {
+            console.log(error)
             return null;
         }
     },
