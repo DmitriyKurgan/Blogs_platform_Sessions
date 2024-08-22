@@ -12,10 +12,10 @@ export const usersRepository = {
         const user = await usersCollection.findOne({_id: new ObjectId(userID)})
         return user ? UserMapper(user) : null
     },
-    async createUser(newUser:UserDBType):Promise<EazeUserType | null> {
+    async createUser(newUser:UserDBType):Promise<EazeUserType | any> {
         const result:InsertOneResult<UserDBType> = await usersCollection.insertOne(newUser);
-        const user: UserDBType| null = await usersCollection.findOne({_id: result.insertedId});
-        return user ? UserSimpleMapper(user) : null;
+         const user = await usersCollection.findOne({_id: result.insertedId});
+         return user
     },
    async deleteUser(userID:string): Promise<boolean>{
         const result: DeleteResult = await usersCollection.deleteOne({_id:new ObjectId(userID)});

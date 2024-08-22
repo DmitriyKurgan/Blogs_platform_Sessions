@@ -7,9 +7,7 @@ import {CodeResponsesEnum} from "../utils/utils";
 import {jwtService} from "../application/jwt-service";
 import {authQueryRepository} from "../repositories/query-repositories/auth-query-repository";
 import {tokensQueryRepository} from "../repositories/query-repositories/tokens-query-repository";
-import {requestsCollection} from "../repositories/db";
 import {devicesService} from "../services/devices-service";
-import {rateLimitsService} from "../services/raze-limiter-service";
 import {attemptsRepository} from "../repositories/rate-limit-repository.ts";
 const websiteUrlPattern =
     /^https:\/\/([a-zA-Z0-9_-]+\.)+[a-zA-Z0-9_-]+(\/[a-zA-Z0-9_-]+)*\/?$/;

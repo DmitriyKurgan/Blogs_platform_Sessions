@@ -85,13 +85,11 @@ authRouter.post('/registration',
     validateErrorsMiddleware,
     async (req: Request, res: Response) => {
         const userAccount: OutputUserType | null = await usersService.createUser(req.body.login, req.body.email, req.body.password);
+        console.log('userAccount:', userAccount)
         if (!userAccount) {
             return res.sendStatus(CodeResponsesEnum.Not_found_404)
         }
-        const gmailResponse = await emailService.sendEmail(userAccount, userAccount?.emailConfirmation?.confirmationCode);
-        if (!gmailResponse) {
-            return res.sendStatus(CodeResponsesEnum.Not_found_404)
-        }
+        await emailService.sendEmail(userAccount.accountData.email, userAccount?.emailConfirmation?.confirmationCode);
         res.sendStatus(CodeResponsesEnum.Not_content_204)
     });
 authRouter.post('/registration-confirmation',

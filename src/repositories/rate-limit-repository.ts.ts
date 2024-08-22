@@ -1,4 +1,4 @@
-import { rateLimitsCollection} from "../repositories/db";
+import {rateLimitsCollection} from "./db";
 
 export const attemptsRepository = {
         async addAttempts(userIP: string, url: string, time: Date) {
