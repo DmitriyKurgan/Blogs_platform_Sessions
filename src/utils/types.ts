@@ -73,12 +73,10 @@ export type DeviceType = {
 }
 
 export type RateLimitType = {
-    _id: ObjectId
-    ip: string
-    endpoint: string
-    firstAttempt: number
-    lastAttempt: number
-    attemptsCount: number
+   // _id: ObjectId
+    userIP: string
+    url: string
+    time: Date
 }
 
 export type OutputCommentType = CommentType & {id:string}

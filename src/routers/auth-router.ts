@@ -2,7 +2,7 @@ import {Request, Response, Router} from "express";
 import {usersService} from "../services/users-service";
 import {CodeResponsesEnum} from "../utils/utils";
 import {
-    authMiddleware, rateLimitMiddleware,
+    authMiddleware, requestAttemptsMiddleware,
     validateAuthorization,
     validateAuthRequests,
     validateEmailResendingRequests,
@@ -25,7 +25,7 @@ import {devicesService} from "../services/devices-service";
 
 export const authRouter = Router({});
 
-authRouter.post('/login', validateAuthRequests, rateLimitMiddleware, validateErrorsMiddleware, async (req: Request, res: Response) => {
+authRouter.post('/login', validateAuthRequests, requestAttemptsMiddleware, validateErrorsMiddleware, async (req: Request, res: Response) => {
     const user = await usersService.checkCredentials(req.body.loginOrEmail, req.body.password)
     if (!user) {
         return res.sendStatus(CodeResponsesEnum.Unauthorized_401)
@@ -81,7 +81,7 @@ authRouter.post('/registration',
     validateUsersRequests,
     validationUserUnique("email"),
     validationUserUnique("login"),
-    rateLimitMiddleware,
+    requestAttemptsMiddleware,
     validateErrorsMiddleware,
     async (req: Request, res: Response) => {
         const userAccount: OutputUserType | null = await usersService.createUser(req.body.login, req.body.email, req.body.password);
@@ -97,7 +97,7 @@ authRouter.post('/registration',
 authRouter.post('/registration-confirmation',
     validateRegistrationConfirmationRequests,
     validationEmailConfirm,
-    rateLimitMiddleware,
+    requestAttemptsMiddleware,
     validateErrorsMiddleware,
     async (req: Request, res: Response) => {
         const confirmationCode = req.body.code;
@@ -110,7 +110,7 @@ authRouter.post('/registration-confirmation',
 authRouter.post('/registration-email-resending',
     validateEmailResendingRequests,
     validationEmailResend,
-    rateLimitMiddleware,
+    requestAttemptsMiddleware,
     validateErrorsMiddleware, async (req: Request, res: Response) => {
         const userEmail = req.body.email;
         const confirmationCodeUpdatingResult = await authService.resendEmail(userEmail);

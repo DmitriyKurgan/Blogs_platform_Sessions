@@ -10,6 +10,7 @@ import {tokensQueryRepository} from "../repositories/query-repositories/tokens-q
 import {requestsCollection} from "../repositories/db";
 import {devicesService} from "../services/devices-service";
 import {rateLimitsService} from "../services/raze-limiter-service";
+import {attemptsRepository} from "../repositories/rate-limit-repository.ts";
 const websiteUrlPattern =
     /^https:\/\/([a-zA-Z0-9_-]+\.)+[a-zA-Z0-9_-]+(\/[a-zA-Z0-9_-]+)*\/?$/;
 const loginPattern =
@@ -444,39 +445,10 @@ export const validationRefreshToken = async (
     }
 
 }
-export const rateLimitMiddleware = async (req: Request, res: Response, next: NextFunction) => {
-    const ip = req.ip!;
-    const endpoint = req.originalUrl;
-
-    const foundRateLimit = await rateLimitsService.findRateLimit(ip, endpoint);
-
-    if (!foundRateLimit) {
-        await rateLimitsService.createRateLimit(ip, endpoint);
-    } else {
-        const currentDate = Date.now();
-        const firstAttemptDate = foundRateLimit.firstAttempt;
-        const lastAttemptDate = foundRateLimit.lastAttempt;
-        const diffBetweenNowAndFirst = currentDate - firstAttemptDate;
-        const diffBetweenNowAndLast = currentDate - lastAttemptDate;
-
-        if (foundRateLimit.attemptsCount >= 5) {
-            // Timeout 5 sec
-            if (diffBetweenNowAndLast < 5000) {
-                res.sendStatus(429);
-                return;
-            } else {
-                await rateLimitsService.deleteRateLimit(ip, endpoint);
-            }
-        }
-
-        if (diffBetweenNowAndFirst < 10000) {
-            await rateLimitsService.updateCounter(ip, endpoint, currentDate);
-        } else {
-            await rateLimitsService.deleteRateLimit(ip, endpoint);
-            await rateLimitsService.createRateLimit(ip, endpoint);
-        }
-    }
-
-    next();
-
-};
+export const requestAttemptsMiddleware = async (req: Request, res: Response, next: NextFunction) => {
+    const timeLimit = new Date(new Date().getTime() - 10000) // 10 sec
+    const countOfAttempts = await attemptsRepository.countOfAttempts(req.ip!, req.url, timeLimit)
+    if (countOfAttempts >= 5) return res.sendStatus(429)
+    await attemptsRepository.addAttempts(req.ip!, req.url, new Date())
+    next()
+}

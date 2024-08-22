@@ -28,7 +28,6 @@ securityDevicesRouter.get('/', async (req:Request, res:Response)=>{
 })
 
 securityDevicesRouter.delete('/:deviceId', validationDevicesFindByParamId, validateErrorsMiddleware, validationDeviceOwner, async (req:Request, res:Response)=>{
-
     const isDeleted = await devicesService.deleteDevice(
         req.params.deviceId
     );
@@ -41,11 +40,9 @@ securityDevicesRouter.delete('/:deviceId', validationDevicesFindByParamId, valid
 
 
 securityDevicesRouter.delete('/', authMiddleware, validateErrorsMiddleware, async (req:Request, res:Response)=>{
-    if (!req.cookies.refreshToken){
-        return res.sendStatus(CodeResponsesEnum.Unauthorized_401);
-    }
     const cookieRefreshToken = req.cookies.refreshToken;
-    const deviceId =  jwtService.getDeviceIdFromToken(cookieRefreshToken)
+    const deviceId = jwtService.getDeviceIdFromToken(cookieRefreshToken)
+    console.log('currentDeviceID: ', deviceId)
     if (deviceId) {
         await devicesService.deleteAllOldDevices(deviceId);
         res.sendStatus(204);
