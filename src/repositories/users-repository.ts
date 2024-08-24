@@ -15,7 +15,7 @@ export const usersRepository = {
     async createUser(newUser:UserDBType):Promise<EazeUserType | any> {
         const result:InsertOneResult<UserDBType> = await usersCollection.insertOne(newUser);
          const user = await usersCollection.findOne({_id: result.insertedId});
-         return user
+         return user ? UserSimpleMapper(user) : null;
     },
    async deleteUser(userID:string): Promise<boolean>{
         const result: DeleteResult = await usersCollection.deleteOne({_id:new ObjectId(userID)});
