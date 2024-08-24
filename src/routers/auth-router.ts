@@ -84,9 +84,8 @@ authRouter.post('/registration',
     requestAttemptsMiddleware,
     validateErrorsMiddleware,
     async (req: Request, res: Response) => {
-         await usersService.createUser(req.body.login, req.body.email, req.body.password);
-         const userAccount = await usersRepository.findByLoginOrEmail(req.body.email);
-        console.log('userAccount:', userAccount)
+        await usersService.createUser(req.body.login, req.body.email, req.body.password);
+        const userAccount = await usersRepository.findByLoginOrEmail(req.body.email);
         if (!userAccount) {
             return res.sendStatus(CodeResponsesEnum.Not_found_404)
         }
