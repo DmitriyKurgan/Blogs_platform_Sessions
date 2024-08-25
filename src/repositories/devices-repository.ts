@@ -30,7 +30,8 @@ export const devicesRepository = {
        return result.deletedCount === 1;
     },
     async deleteAllOldDevices(currentDeviceID:string){
-        return await devicesCollection.deleteMany({deviceId: {$ne: currentDeviceID}});
+        const result: DeleteResult = await devicesCollection.deleteMany({deviceId: {$ne: currentDeviceID}});
+        return result.deletedCount;
     },
     async findDeviceById(deviceID:string){
         const result: WithId<DeviceType> | null = await devicesCollection.findOne({deviceId:deviceID});
