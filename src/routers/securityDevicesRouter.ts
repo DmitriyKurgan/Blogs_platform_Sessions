@@ -44,6 +44,7 @@ securityDevicesRouter.delete('/', authMiddleware, validateErrorsMiddleware, asyn
     const deviceId = jwtService.getDeviceIdFromToken(cookieRefreshToken)
     const isDeviceValid = await devicesService.findDeviceById(deviceId)
     console.log('currentDeviceID: ', deviceId)
+    console.log('isDeviceValid: ', isDeviceValid)
     if (deviceId && isDeviceValid) {
         await devicesService.deleteAllOldDevices(deviceId);
         res.sendStatus(204);
