@@ -20,7 +20,7 @@ securityDevicesRouter.get('/', async (req:Request, res:Response)=>{
         const foundDevices = await devicesQueryRepository.getAllDevices(
             userId
         );
-        res.json(foundDevices);
+     return res.send(foundDevices);
     } else {
         res.sendStatus(401);
     }
