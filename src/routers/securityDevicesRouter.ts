@@ -20,9 +20,9 @@ securityDevicesRouter.get('/', async (req:Request, res:Response)=>{
         const foundDevices = await devicesQueryRepository.getAllDevices(
             userId
         );
-     return res.send(foundDevices);
+     return res.status(CodeResponsesEnum.OK_200).send(foundDevices);
     } else {
-        res.sendStatus(401);
+      return res.sendStatus(401);
     }
 
 })
@@ -42,8 +42,9 @@ securityDevicesRouter.delete('/:deviceId', validationDevicesFindByParamId, valid
 securityDevicesRouter.delete('/', authMiddleware, validateErrorsMiddleware, async (req:Request, res:Response)=>{
     const cookieRefreshToken = req.cookies.refreshToken;
     const deviceId = jwtService.getDeviceIdFromToken(cookieRefreshToken)
+    const isDeviceValid = await devicesService.findDeviceById(deviceId)
     console.log('currentDeviceID: ', deviceId)
-    if (deviceId) {
+    if (deviceId && isDeviceValid) {
         await devicesService.deleteAllOldDevices(deviceId);
         res.sendStatus(204);
     } else {
