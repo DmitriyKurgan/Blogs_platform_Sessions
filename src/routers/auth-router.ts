@@ -17,60 +17,44 @@ import {
 import {jwtService} from "../application/jwt-service";
 import {authService} from "../services/auth-service";
 import {emailService} from "../services/email-service";
+import {OutputUserType} from "../utils/types";
 import {usersRepository} from "../repositories/users-repository";
 import {tokensService} from "../services/tokens-service";
 import {usersQueryRepository} from "../repositories/query-repositories/users-query-repository";
 import {devicesService} from "../services/devices-service";
+import {randomUUID, UUID} from "crypto";
 
 export const authRouter = Router({});
 
 authRouter.post('/login', validateAuthRequests, requestAttemptsMiddleware, validateErrorsMiddleware, async (req: Request, res: Response) => {
-    const user = await usersService.checkCredentials(req.body.loginOrEmail, req.body.password)
+
+    const {loginOrEmail, password} = req.body
+    const user = await usersService.checkCredentials(loginOrEmail, password)
 
     if (!user) {
         return res.sendStatus(CodeResponsesEnum.Unauthorized_401)
     }
 
-    const ip = req.ip!
+    const deviceId:UUID = randomUUID();
+    const ip = req.ip!;
     const deviceTitle =  req.headers['user-agent'] || "browser not found"
-    const token = await jwtService.createJWT(user);
+    const token = await jwtService.createJWT(user, deviceId);
     const lastActiveDate = jwtService.getLastActiveDateFromToken(token.refreshToken);
-    const deviceId =  jwtService.getDeviceIdFromToken(token.refreshToken)
+    const session = await devicesService.createDevice(user.id, ip, deviceTitle , lastActiveDate, deviceId)
 
-    await devicesService.createDevice(user.id, ip, deviceTitle , lastActiveDate, deviceId)
+    res.cookie('refreshToken', token.refreshToken, {httpOnly: true, secure: true,})
+        .status(CodeResponsesEnum.OK_200)
+        .send(token.accessToken);
 
-    res.cookie('refreshToken', token.refreshToken, {
-            httpOnly: true,
-            secure: true,
-            // maxAge: 20 * 1000,
-            // sameSite: 'strict'
-        }).status(CodeResponsesEnum.OK_200).send(token.accessToken);
 });
 
 authRouter.post('/refresh-token', validationRefreshToken, async (req: Request, res: Response) => {
-    const refreshToken = req.cookies.refreshToken; //login, logout, refresh-tokens
-    const userId = await jwtService.getUserIdByToken(refreshToken);
-    const cookieRefreshTokenObj = await jwtService.verifyToken(refreshToken);
-    const deviceId = cookieRefreshTokenObj!.deviceId;
-
-    if (userId) {
-        await tokensService.createNewBlacklistedRefreshToken(refreshToken);
-        const user = await usersQueryRepository.findUserByID(userId);
-        const newAccessToken = (await jwtService.createJWT(user)).accessToken;
-        const newRefreshToken = (await jwtService.createJWT(user)).refreshToken;
-        const newRefreshTokenObj = await jwtService.verifyToken(
-            newRefreshToken
-        );
-        const newIssuedAt = newRefreshTokenObj!.iat;
-        const ip = req.ip!;
-        await devicesService.updateDevice(ip, deviceId, newIssuedAt);
-
-        res.cookie("refreshToken", newRefreshToken, { httpOnly: true, secure: true })
-            .status(200)
-            .json(newAccessToken);
-    } else {
-        res.sendStatus(401);
-    }
+    const deviceId = req.deviceId!;
+    const userId = req.userId!;
+    const user = await usersQueryRepository.findUserByID(userId);
+    const newTokenPair = await jwtService.createJWT(user, deviceId);
+    res.cookie('refreshToken', newTokenPair.refreshToken, {httpOnly: true, secure: true});
+    res.status(200).send({accessToken: newTokenPair.accessToken})
 });
 
 authRouter.post('/registration',

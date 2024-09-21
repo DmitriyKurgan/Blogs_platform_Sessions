@@ -6,7 +6,6 @@ import {commentsQueryRepository} from "../repositories/query-repositories/commen
 import {CodeResponsesEnum} from "../utils/utils";
 import {jwtService} from "../application/jwt-service";
 import {authQueryRepository} from "../repositories/query-repositories/auth-query-repository";
-import {tokensQueryRepository} from "../repositories/query-repositories/tokens-query-repository";
 import {devicesService} from "../services/devices-service";
 import {attemptsRepository} from "../repositories/rate-limit-repository.ts";
 const websiteUrlPattern =
@@ -390,9 +389,9 @@ export const validationDeviceOwner = async (
 export const validationUserUnique = (field: string) =>
     body(field).custom(async (value) => {
         const result = await authQueryRepository.findByLoginOrEmail(value);
-
-        if (result) throw new Error("User already registered");
-
+        if (result) {
+            throw new Error("User already registered");
+        }
         return true;
     });
 
@@ -401,53 +400,79 @@ export const validationRefreshToken = async (
     res: Response,
     next: NextFunction
 ) => {
-    const refreshToken = req?.cookies?.refreshToken;
 
-    if (!refreshToken) {
-        return res.sendStatus(401);
-    }
+    const refreshToken = req.cookies.refreshToken
 
-    const findTokenInBlackList = await tokensQueryRepository.findBlackListedToken(refreshToken);
+    if (!refreshToken) return res.sendStatus(401)
 
-    if (!findTokenInBlackList) {
-        const cookieRefreshTokenObj = await jwtService.verifyToken(
-            refreshToken
-        );
+    const userId = await jwtService.getUserIdByToken(refreshToken)
 
-        if (!cookieRefreshTokenObj) {
-            res.sendStatus(401);
-            return;
-        }
+    if (!userId) return res.sendStatus(401)
 
-        const deviceId = cookieRefreshTokenObj.deviceId;
-        const cookieRefreshTokenIat = cookieRefreshTokenObj.iat;
+    const foundUserById = await usersQueryRepository.findUserByID(userId)
 
-        const dbDevice = await devicesService.findDeviceById(deviceId);
+    if (!foundUserById) return res.sendStatus(401)
 
-        if (dbDevice) {
-            if (cookieRefreshTokenIat < dbDevice.lastActiveDate) {
-                res.sendStatus(401);
-                return;
-            }
-        } else {
-            res.sendStatus(401);
-            return;
-        }
+    const currentDeviceId = jwtService.getDeviceIdFromToken(refreshToken)
 
-        next();
-    } else {
-      return res.sendStatus(401);
-    }
+    const lastActiveDate = jwtService.getLastActiveDateFromToken(refreshToken)
+
+    const userSession = await devicesService.findDeviceById(currentDeviceId)
+
+    if (!userSession) return res.sendStatus(401)
+
+    req.userId = userId
+    req.deviceId = currentDeviceId
+
+    next()
+
+
+    // const refreshToken = req?.cookies?.refreshToken;
+    //
+    // if (!refreshToken) {
+    //     res.sendStatus(401);
+    //     return;
+    // }
+    //
+    // const findTokenInBlackList = await tokensQueryRepository.findBlackListedToken(
+    //     refreshToken
+    // );
+    //
+    // if (!findTokenInBlackList) {
+    //     const cookieRefreshTokenObj = await jwtService.verifyToken(
+    //         refreshToken
+    //     );
+    //
+    //     if (!cookieRefreshTokenObj) {
+    //         res.sendStatus(401);
+    //         return;
+    //     }
+    //
+    //     const deviceId = cookieRefreshTokenObj.deviceId;
+    //     const cookieRefreshTokenIat = cookieRefreshTokenObj.iat;
+    //
+    //     const dbDevice = await devicesService.findDeviceById(deviceId);
+    //
+    //     if (dbDevice) {
+    //         if (cookieRefreshTokenIat < dbDevice.lastActiveDate) {
+    //             res.sendStatus(401);
+    //             return;
+    //         }
+    //     } else {
+    //         res.sendStatus(401);
+    //         return;
+    //     }
+    //
+    //     next();
+    // } else {
+    //   return   res.sendStatus(401);
+    // }
 
 }
 export const requestAttemptsMiddleware = async (req: Request, res: Response, next: NextFunction) => {
     const timeLimit = new Date(new Date().getTime() - 10000) // 10 sec
     const countOfAttempts = await attemptsRepository.countOfAttempts(req.ip!, req.url, timeLimit)
-
-    if (countOfAttempts >= 5) {
-        return res.sendStatus(429)
-    }
-
+    if (countOfAttempts >= 5) return res.sendStatus(429)
     await attemptsRepository.addAttempts(req.ip!, req.url, new Date())
     next()
 }

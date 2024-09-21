@@ -1,19 +1,20 @@
-import {AccessToken, OutputUserType, TokenType} from "../utils/types";
+import {AccessToken, EazeUserType, OutputUserType, TokenType} from "../utils/types";
 import {ObjectId} from "mongodb";
 import jwt from 'jsonwebtoken';
 import {settings} from "../settings";
-import {randomUUID, UUID} from "crypto";
 
 export const jwtService:any = {
 
-    async createJWT(user:OutputUserType):Promise<TokenType>{
-        const deviceId:UUID = randomUUID();
+    async createJWT(user:EazeUserType | null, deviceId: string):Promise<TokenType>{
+        if (!user) {
+            return { accessToken: {accessToken: ''}, refreshToken: '' }
+        }
         const accessToken: AccessToken = {
             accessToken: jwt.sign({ userId: user.id, deviceId }, settings.JWT_SECRET, { expiresIn: '10s' })
         };
 
         const refreshToken = jwt.sign({ userId: user.id, deviceId }, settings.JWT_SECRET, { expiresIn: '20s' })
-        console.log('refreshToken: ', refreshToken)
+
         return { accessToken, refreshToken };
     },
     async getUserIdByToken(token:string):Promise<ObjectId | null>{
