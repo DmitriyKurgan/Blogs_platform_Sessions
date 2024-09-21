@@ -53,8 +53,9 @@ authRouter.post('/refresh-token', validationRefreshToken, async (req: Request, r
     const userId = req.userId!;
     const user = await usersQueryRepository.findUserByID(userId);
     const newTokenPair = await jwtService.createJWT(user, deviceId);
+
     res.cookie('refreshToken', newTokenPair.refreshToken, {httpOnly: true, secure: true});
-    res.status(200).send({accessToken: newTokenPair.accessToken})
+    res.status(200).send(newTokenPair.accessToken.accessToken)
 });
 
 authRouter.post('/registration',

@@ -426,48 +426,6 @@ export const validationRefreshToken = async (
 
     next()
 
-
-    // const refreshToken = req?.cookies?.refreshToken;
-    //
-    // if (!refreshToken) {
-    //     res.sendStatus(401);
-    //     return;
-    // }
-    //
-    // const findTokenInBlackList = await tokensQueryRepository.findBlackListedToken(
-    //     refreshToken
-    // );
-    //
-    // if (!findTokenInBlackList) {
-    //     const cookieRefreshTokenObj = await jwtService.verifyToken(
-    //         refreshToken
-    //     );
-    //
-    //     if (!cookieRefreshTokenObj) {
-    //         res.sendStatus(401);
-    //         return;
-    //     }
-    //
-    //     const deviceId = cookieRefreshTokenObj.deviceId;
-    //     const cookieRefreshTokenIat = cookieRefreshTokenObj.iat;
-    //
-    //     const dbDevice = await devicesService.findDeviceById(deviceId);
-    //
-    //     if (dbDevice) {
-    //         if (cookieRefreshTokenIat < dbDevice.lastActiveDate) {
-    //             res.sendStatus(401);
-    //             return;
-    //         }
-    //     } else {
-    //         res.sendStatus(401);
-    //         return;
-    //     }
-    //
-    //     next();
-    // } else {
-    //   return   res.sendStatus(401);
-    // }
-
 }
 export const requestAttemptsMiddleware = async (req: Request, res: Response, next: NextFunction) => {
     const timeLimit = new Date(new Date().getTime() - 10000) // 10 sec
