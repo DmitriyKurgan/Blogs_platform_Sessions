@@ -23,6 +23,7 @@ import {tokensService} from "../services/tokens-service";
 import {usersQueryRepository} from "../repositories/query-repositories/users-query-repository";
 import {devicesService} from "../services/devices-service";
 import {randomUUID, UUID} from "crypto";
+import {cookie} from "express-validator";
 
 export const authRouter = Router({});
 
@@ -52,15 +53,16 @@ authRouter.post('/refresh-token', validationRefreshToken, async (req: Request, r
     const deviceId = req.deviceId!;
     const userId = req.userId!;
     const user = await usersQueryRepository.findUserByID(userId);
-    const newTokenPair = await jwtService.createJWT(user, deviceId);
+    const {refreshToken, accessToken} = await jwtService.createJWT(user, deviceId);
+    await tokensService.createNewBlacklistedRefreshToken(req.cookies.refreshToken);
     const newRefreshTokenObj = await jwtService.verifyToken(
-        newTokenPair.refreshToken
+        refreshToken
     );
     const newIssuedAt = newRefreshTokenObj!.iat;
     const ip = req.ip!;
     await devicesService.updateDevice(ip, deviceId, newIssuedAt);
-    res.cookie('refreshToken', newTokenPair.refreshToken, {httpOnly: true, secure: true});
-    res.send(newTokenPair.accessToken).status(CodeResponsesEnum.OK_200)
+    res.cookie('refreshToken', refreshToken, {httpOnly: true, secure: true});
+    res.send(accessToken).status(CodeResponsesEnum.OK_200)
 });
 
 authRouter.post('/registration',

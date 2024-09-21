@@ -22,7 +22,7 @@ export const jwtService:any = {
            const result:any = jwt.verify(token, settings.JWT_SECRET);
            return result.userId;
         } catch (e:unknown) {
-            console.log(e)
+           // console.log(e)
             return null
         }
     },
