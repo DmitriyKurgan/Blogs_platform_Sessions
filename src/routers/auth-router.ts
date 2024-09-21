@@ -60,7 +60,7 @@ authRouter.post('/refresh-token', validationRefreshToken, async (req: Request, r
     const ip = req.ip!;
     await devicesService.updateDevice(ip, deviceId, newIssuedAt);
     res.cookie('refreshToken', newTokenPair.refreshToken, {httpOnly: true, secure: true});
-    res.send(newTokenPair.accessToken.accessToken).status(CodeResponsesEnum.OK_200)
+    res.send(newTokenPair.accessToken).status(CodeResponsesEnum.OK_200)
 });
 
 authRouter.post('/registration',
