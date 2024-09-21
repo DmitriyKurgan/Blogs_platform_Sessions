@@ -1,7 +1,6 @@
 import { DeviceType, OutputCommentType} from "../utils/types";
 
 import {devicesRepository} from "../repositories/devices-repository";
-import {randomUUID} from "crypto";
 
 export const comments = [] as OutputCommentType[]
 export type ExtendedSessionType = DeviceType & {userId:string}
@@ -15,7 +14,7 @@ export const devicesService: any = {
             title,
         };
 
-        return await devicesRepository.createDevice(newSession);
+        return devicesRepository.createDevice(newSession);
     },
     async updateDevice(
         ip: string,

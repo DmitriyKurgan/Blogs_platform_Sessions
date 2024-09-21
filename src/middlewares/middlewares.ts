@@ -390,9 +390,9 @@ export const validationDeviceOwner = async (
 export const validationUserUnique = (field: string) =>
     body(field).custom(async (value) => {
         const result = await authQueryRepository.findByLoginOrEmail(value);
-        if (result) {
-            throw new Error("User already registered");
-        }
+
+        if (result) throw new Error("User already registered");
+
         return true;
     });
 
@@ -404,13 +404,10 @@ export const validationRefreshToken = async (
     const refreshToken = req?.cookies?.refreshToken;
 
     if (!refreshToken) {
-        res.sendStatus(401);
-        return;
+        return res.sendStatus(401);
     }
 
-    const findTokenInBlackList = await tokensQueryRepository.findBlackListedToken(
-        refreshToken
-    );
+    const findTokenInBlackList = await tokensQueryRepository.findBlackListedToken(refreshToken);
 
     if (!findTokenInBlackList) {
         const cookieRefreshTokenObj = await jwtService.verifyToken(
@@ -439,14 +436,18 @@ export const validationRefreshToken = async (
 
         next();
     } else {
-      return   res.sendStatus(401);
+      return res.sendStatus(401);
     }
 
 }
 export const requestAttemptsMiddleware = async (req: Request, res: Response, next: NextFunction) => {
     const timeLimit = new Date(new Date().getTime() - 10000) // 10 sec
     const countOfAttempts = await attemptsRepository.countOfAttempts(req.ip!, req.url, timeLimit)
-    if (countOfAttempts >= 5) return res.sendStatus(429)
+
+    if (countOfAttempts >= 5) {
+        return res.sendStatus(429)
+    }
+
     await attemptsRepository.addAttempts(req.ip!, req.url, new Date())
     next()
 }

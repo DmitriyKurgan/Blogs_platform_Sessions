@@ -8,7 +8,7 @@ app.get('/', (req:Request, res:Response)=>{
     res.send('DEFAULT GET REQUEST')
 })
 
-const startsApp = async () =>{
+const startsApp = async () => {
     await runDB();
     console.log('DB')
     app.listen(port, ()=> {

@@ -1,14 +1,16 @@
-import {devicesCollection} from "../repositories/db";
-import {ObjectId, DeleteResult, WithId} from "mongodb";
+import {devicesCollection} from "./db";
+import {DeleteResult, WithId} from "mongodb";
 import {DeviceType, } from "../utils/types";
 import {ExtendedSessionType} from "../services/devices-service";
+
 export const devices = [] as DeviceType[]
 
 export const devicesRepository = {
+
     async createDevice(session:ExtendedSessionType){
-        const result = await devicesCollection.insertOne(session);
-        return result;
+        return devicesCollection.insertOne(session);
     },
+
     async updateDevice(
         ip: string,
         deviceId: string,
