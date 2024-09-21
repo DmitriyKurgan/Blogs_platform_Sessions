@@ -119,14 +119,18 @@ authRouter.get('/me', authMiddleware, async (req: Request, res: Response) => {
 });
 
 authRouter.post('/logout', validationRefreshToken, async (req: Request, res: Response) => {
-    const cookieRefreshToken = req.cookies.refreshToken;
-    const cookieRefreshTokenObj = await jwtService.verifyToken(
+
+    const cookieRefreshToken = req.cookies.refreshToken!;
+    const { deviceId } = await jwtService.verifyToken(
         cookieRefreshToken
     );
-    await tokensService.createNewBlacklistedRefreshToken(cookieRefreshToken);
-    if (cookieRefreshTokenObj) {
-        const cookieDeviceId = cookieRefreshTokenObj.deviceId;
-        await devicesService.deleteDevice(cookieDeviceId);
+
+    const clearTokensPair =  await tokensService.createNewBlacklistedRefreshToken(cookieRefreshToken);
+
+    if (!clearTokensPair) return res.sendStatus(CodeResponsesEnum.Unauthorized_401)
+
+    if (deviceId) {
+        await devicesService.deleteDevice(deviceId);
         res.sendStatus(204);
     } else {
         res.sendStatus(401);
