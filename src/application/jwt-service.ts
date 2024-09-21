@@ -1,14 +1,12 @@
-import {AccessToken, EazeUserType, OutputUserType, TokenType} from "../utils/types";
+import {AccessToken, EazeUserType, OutputUserType, TokenType, UserType} from "../utils/types";
 import {ObjectId} from "mongodb";
 import jwt from 'jsonwebtoken';
 import {settings} from "../settings";
 
 export const jwtService:any = {
 
-    async createJWT(user:EazeUserType | null, deviceId: string):Promise<TokenType>{
-        if (!user) {
-            return { accessToken: {accessToken: ''}, refreshToken: '' }
-        }
+    async createJWT(user:UserType & {id:string}, deviceId: string):Promise<TokenType>{
+
         const accessToken: AccessToken = {
             accessToken: jwt.sign({ userId: user.id, deviceId }, settings.JWT_SECRET, { expiresIn: '10s' })
         };
