@@ -37,13 +37,12 @@ authRouter.post('/login', validateAuthRequests, requestAttemptsMiddleware, valid
     const deviceId:UUID = randomUUID();
     const ip = req.ip!;
     const deviceTitle =  req.headers['user-agent'] || "browser not found"
-    const token = await jwtService.createJWT(user, deviceId);
-    const lastActiveDate = jwtService.getLastActiveDateFromToken(token.refreshToken);
-    const session = await devicesService.createDevice(user.id, ip, deviceTitle , lastActiveDate, deviceId)
 
-    res.cookie('refreshToken', token.refreshToken, {httpOnly: true, secure: true,})
+    const {refreshToken, accessToken} = await authService.loginUser(user, deviceId, ip, deviceTitle);
+
+    res.cookie('refreshToken', refreshToken, {httpOnly: true, secure: true,})
         .status(CodeResponsesEnum.OK_200)
-        .send(token.accessToken);
+        .send(accessToken);
 
 });
 

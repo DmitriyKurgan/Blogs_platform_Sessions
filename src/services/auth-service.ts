@@ -10,7 +10,12 @@ import {devicesService} from "./devices-service";
 export const users = [] as OutputUserType[]
 
 export const authService:any = {
-
+    async loginUser (user:UserType & {id:string}, deviceId: string, ip: string, deviceTitle: string): Promise<TokenType> {
+        const {refreshToken, accessToken} = await jwtService.createJWT(user, deviceId);
+        const lastActiveDate = jwtService.getLastActiveDateFromToken(refreshToken);
+        const session = await devicesService.createDevice(user.id, ip, deviceTitle , lastActiveDate, deviceId)
+        return {refreshToken, accessToken}
+    },
     async refreshToken (oldRefreshToken: string, user: UserType & {id: string}, deviceId: string, ip: string): Promise<TokenType> {
 
         const {refreshToken, accessToken} = await jwtService.createJWT(user, deviceId);
@@ -25,34 +30,36 @@ export const authService:any = {
         return {accessToken, refreshToken};
 
     },
-
     async confirmRegistration(confirmationCode:string):Promise<boolean>{
+
         const userAccount:OutputUserType | null = await authQueryRepository.findUserByEmailConfirmationCode(confirmationCode);
+
         if (!userAccount) return false;
+
         if (userAccount.emailConfirmation.isConfirmed) return false;
         if (userAccount.emailConfirmation.confirmationCode !== confirmationCode) return false;
         if (userAccount.emailConfirmation.expirationDate < new Date()) return false;
 
-        const result = await authRepository.updateConfirmation(userAccount.id);
-        return result
+        return await authRepository.updateConfirmation(userAccount.id);
 
     },
     async updateConfirmationCode(userAccount:OutputUserType, confirmationCode:string):Promise<boolean>{
-        const result = await authRepository.updateConfirmationCode(userAccount.id, confirmationCode);
-        return result
-
+        return await authRepository.updateConfirmationCode(userAccount.id, confirmationCode);
     },
     async _generateHash(password:string, salt:string):Promise<string>{
-        const hash = await bcrypt.hash(password, salt);
-        return hash
+        return await bcrypt.hash(password, salt);
     },
     async resendEmail(email: string): Promise<boolean> {
         const userAccount: OutputUserType | null = await authQueryRepository.findByLoginOrEmail(email);
+
         if (!userAccount || !userAccount.emailConfirmation.confirmationCode) {
             return false;
         }
+
         const newConfirmationCode:string = randomUUID();
+
         await emailService.sendEmail(userAccount, newConfirmationCode)
+
         return authService.updateConfirmationCode(
             userAccount,
             newConfirmationCode
