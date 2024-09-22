@@ -1,4 +1,4 @@
-import {AccessToken, EazeUserType, OutputUserType, TokenType, UserType} from "../utils/types";
+import {AccessToken, TokenType, UserType} from "../utils/types";
 import {ObjectId} from "mongodb";
 import jwt from 'jsonwebtoken';
 import {settings} from "../settings";
@@ -20,7 +20,6 @@ export const jwtService:any = {
            const result:any = jwt.verify(token, settings.JWT_SECRET);
            return result.userId;
         } catch (e:unknown) {
-           // console.log(e)
             return null
         }
     },
@@ -39,9 +38,7 @@ export const jwtService:any = {
         return new Date(payload.iat * 1000).toISOString()
     },
     getDeviceIdFromToken(refreshToken: string): string {
-        console.log('refreshToken: ', refreshToken)
         const payload: any = jwt.verify(refreshToken, settings.JWT_SECRET)
-        console.log('payload: ', payload)
         return payload.deviceId
     }
 }

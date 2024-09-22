@@ -8,7 +8,6 @@ import {jwtService} from "../application/jwt-service";
 import {authQueryRepository} from "../repositories/query-repositories/auth-query-repository";
 import {devicesService} from "../services/devices-service";
 import {attemptsRepository} from "../repositories/rate-limit-repository.ts";
-import {tokensService} from "../services/tokens-service";
 import {tokensQueryRepository} from "../repositories/query-repositories/tokens-query-repository";
 const websiteUrlPattern =
     /^https:\/\/([a-zA-Z0-9_-]+\.)+[a-zA-Z0-9_-]+(\/[a-zA-Z0-9_-]+)*\/?$/;

@@ -73,7 +73,6 @@ export type DeviceType = {
 }
 
 export type RateLimitType = {
-   // _id: ObjectId
     userIP: string
     url: string
     time: Date

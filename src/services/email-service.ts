@@ -1,5 +1,4 @@
 import {OutputUserType } from "../utils/types";
-import SMTPTransport from "nodemailer/lib/smtp-transport";
 import {emailManager} from "../managers/email-manager";
 export const users = [] as OutputUserType[]
 

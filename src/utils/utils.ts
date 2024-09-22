@@ -3,7 +3,7 @@ import {BLogMapper} from "../repositories/query-repositories/blogs-query-reposit
 import {BLogType, CommentType, PostType, UserType} from "./types";
 import {WithId} from "mongodb";
 import {blogsCollection, commentsCollection, postsCollection, usersCollection} from "../repositories/db";
-import {UserMapper, UserSimpleMapper} from "../repositories/query-repositories/users-query-repository";
+import {UserSimpleMapper} from "../repositories/query-repositories/users-query-repository";
 import {CommentMapper} from "../repositories/query-repositories/comments-query-repository";
 
 export enum CodeResponsesEnum {

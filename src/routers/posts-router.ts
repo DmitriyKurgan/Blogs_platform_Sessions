@@ -12,7 +12,6 @@ import {postsQueryRepository} from "../repositories/query-repositories/posts-que
 import {blogsQueryRepository} from "../repositories/query-repositories/blogs-query-repository";
 import {commentsQueryRepository} from "../repositories/query-repositories/comments-query-repository";
 import {comments, commentsService} from "../services/comments-service";
-import {usersQueryRepository} from "../repositories/query-repositories/users-query-repository";
 import {usersRepository} from "../repositories/users-repository";
 
 export const postsRouter = Router({});
