@@ -48,19 +48,19 @@ authRouter.post('/login', validateAuthRequests, requestAttemptsMiddleware, valid
 });
 
 authRouter.post('/refresh-token', validationRefreshToken, async (req: Request, res: Response) => {
-    const deviceId = req.deviceId!;
-    const userId = req.userId!;
-    const user = await usersQueryRepository.findUserByID(userId);
-    const {refreshToken, accessToken} = await jwtService.createJWT(user, deviceId);
-    await tokensService.createNewBlacklistedRefreshToken(req.cookies.refreshToken);
-    const newRefreshTokenObj = await jwtService.verifyToken(
-        refreshToken
-    );
-    const newIssuedAt = newRefreshTokenObj!.iat;
-    const ip = req.ip!;
-    await devicesService.updateDevice(ip, deviceId, newIssuedAt);
+
+    const {deviceId, userId, ip} = req;
+
+    if (!userId || !deviceId || !ip) {
+        return res.sendStatus(CodeResponsesEnum.Unauthorized_401);
+    }
+
+    const user = await usersQueryRepository.findUserByID(userId as string);
+    const {refreshToken, accessToken} = await authService.refreshToken(req.cookies.refreshToken, user, deviceId, ip);
+
     res.cookie('refreshToken', refreshToken, {httpOnly: true, secure: true});
     res.status(CodeResponsesEnum.OK_200).send(accessToken)
+
 });
 
 authRouter.post('/registration',
